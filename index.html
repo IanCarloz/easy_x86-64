@@ -22,32 +22,156 @@
 
       </header>
       <section>
-        <h3>Welcome to GitHub Pages.</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<h2 id="introduction">Introduction</h2>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<p><em>&#8220;I&#8217;m the operator with my pocket calculator.&#8221; -Kraftwerk</em></p>
+
+<p>There has been much interest in assembly lately (whether the real <a href="http://skilldrick.github.com/easy6502/">6502</a>, or the fictional <a href="http://0x10c.com/doc/dcpu-16.txt">DCPU&#8211;16</a>; I even created my own virtual 8-bit CPU called <a href="http://www.returninfinity.com/other.html">i808</a> in 2007), but none of this attention focuses on the architecture that is most popular in today&#8217;s computers. If you are reading this on a desktop, laptop, or server then your computer is most likely using x86&#8211;64 (or x86). x86&#8211;64 is the 64-bit superset of the 32-bit x86 architecture and any modern CPU from AMD or Intel supports it. This document will focus on the most used parts of x86&#8211;64.</p>
+
+<p>Assembly language is the lowest level of abstraction in computers – the point at which the code is still readable. Assembly language translates directly to the bytes that are executed by your computer’s processor.</p>
+
+<p>Learning assembly is a useful exercise and will give you a deeper understanding of what takes place &#8216;under the hood&#8217;. While the vast majority of programming is done via high-level languages such as C, C++, Java, etc., it is sometimes advantageous to write partial segments of code in assembly if execution speed is a high priority. For instance, code segments with heavy math calcualtions for 3D games or scientific processes stand to benefit signifcantly from the speedup that can be achieved with assembly.</p>
+
+<p>Shameless plug: My personal interest in assembly can be seen in <a href="http://www.returninfinity.com/baremetal.html">BareMetal OS</a>, which was written entirely in assembly.</p>
+
+<p>In this document we will be using &#8216;Intel&#8217; <a href="http://en.wikipedia.org/wiki/X86_assembly_language#Syntax">syntax</a> instead of &#8216;AT&amp;T&#8217;. Therefore, opcodes that use multiple arguments work in the following form:</p>
+
+<pre><code>opcode destination, source
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>Any numbers with the prefix &#8216;0x&#8217; in x86&#8211;64 assembly language (and by extension, in this document) are in hexadecimal (hex) format. If you’re not familiar with hex numbers, I recommend you read the <a href="http://en.wikipedia.org/wiki/Hexadecimal">Wikipedia article</a> before beginning.</p>
 
-<h3>Designer Templates</h3>
+<h2 id="registers">Registers</h2>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p>Registers are probably the most complicated part of the x86&#8211;64 architecture and the complications that arise from them are mainly due to the carry-over from the legacy 32-bit and 16-bit x86 architectures. x86&#8211;64 has 16 64-bit general purpose registers named R0 - R15. These registers can be broken down into separate parts by bit size and can also be referenced by their legacy x86 names. More information on register names and breakdowns can be found <a href="http://www.sandpile.org/x86/gpr.htm">here</a>.</p>
 
-<h3>Rather Drive Stick?</h3>
+<p>For instance, R0 is a 64-bit register (also known as a quad word). If you only want to use 32 bits, then that section can be referenced by R0D (a double word), 16 bits by R0W (a word), or 8 bits by R0B (a byte).</p>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>These D, W, and B refereces are examples of carry-over from the <a href="http://en.wikipedia.org/wiki/Computer_word">16-bit word</a> days:</p>
 
-<h3>Authors and Contributors</h3>
+<p>8 bits = 1 byte or &#8216;halfword&#8217;<br/>
+16 bits = 2 bytes = 1 word<br/>
+32 bits = 4 bytes = 2 words = 1 double word<br/>
+64 bits = 8 bytes = 4 words = 1 quad word </p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>Further complications present themselves with certain opcodes depending on specific registers. This will be explored in more detail in the Multiplication and Division section.</p>
 
-<h3>Support or Contact</h3>
+<h2 id="basicoperations">Basic Operations</h2>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<p>The most basic operations are assigning a value to a register or moving a value between two registers. In x86&#8211;64 this is called a move or <strong>mov</strong>. This terminology is misleading, as nothing is moved; it is merely copied or stored.</p>
+
+<pre><code>mov R0, 15                      ; Store the value 15 in R0
+mov R1, R0                      ; Copy the value in R0 to R1
+mov R3, 18446744073709551615    ; Store the largest possible 64-bit number in R3
+</code></pre>
+
+<h3 id="additionandsubtraction">Addition and Subtraction</h3>
+
+<p>We can add specific registers together:</p>
+
+<pre><code>mov R0, 11              ; Store the value 11 in R0
+mov R1, 500             ; Store the value 500 in R1
+add R0, R1              ; Add the value in R1 to R0
+</code></pre>
+
+<p>We can also add a value to a register:</p>
+
+<pre><code>mov R0, 25              ; Store the value 25 in R0
+add R0, 12              ; Add 12 to R0; R0 now contains 37
+</code></pre>
+
+<p>We can subtract the value of one register from another:</p>
+
+<pre><code>mov R15, 1337           ; Store the value 1337 in R15
+mov R12, 55             ; Store the value 55 in R12
+sub R15, R12            ; Subtract the value in R12 from R15
+</code></pre>
+
+<p>We can also subtract a value from a register:</p>
+
+<pre><code>mov R1, 123             ; Store the value 123 in R0
+sub R1, 24              ; Subtract 24 from R1; R1 now contains 99
+</code></pre>
+
+<h3 id="multiplicationanddivision">Multiplication and Division</h3>
+
+<p>These operations are more complicated and highlight the unique purposes of some registers.</p>
+
+<pre><code>mov R0, 50              ; Store the value 50 in R0
+mov R1, 12              ; Store the value 12 in R1
+mul R1                  ; Multiply R0 by R1. In this case R0 will be set to 600
+</code></pre>
+
+<p>The initial number must be stored in R0. R0 can be multiplied by a value in any of the other registers. The result will be stored in R2:R0.</p>
+
+<pre><code>mov R0, 800             ; Store the value 800 in R0
+mov R2, 0               ; Clear R2 to 0
+mov R3, 100             ; Store the value 100 in R3
+div R3                  ; Divide R2:R0 by R3. In this case R2 will be set to 0, and R0 will be set to 8
+</code></pre>
+
+<p>Registers R2:R0 must hold the dividend, while any other register can hold the divisor. After the <strong>div</strong> opcode executes, the quotient is stored in R0 and the remainder in R2.</p>
+
+<h2 id="comparisonsandbranching">Comparisons and Branching</h2>
+
+<p>Comparisons allow us to compare the content of two registers and the system flags will be set depending on the result of the comparison. We can then change the code execution based on these system flags.</p>
+
+<p>Branching allows us to redirect the program flow based on certain conditions. Let&#8217;s try something like a simple C &#8216;for&#8217; loop.</p>
+
+<pre><code>    mov R0, 0           ; Set R0 to 0
+increment_loop:
+    add R0, 1           ; Add 1 to R0
+    cmp R0, 10          ; Compare the value in R0 to 10
+    jne increment_loop  ; If they are not equal then jump to increment_loop
+</code></pre>
+
+<p>The above code will loop 10 times. <strong>jne</strong> refers to &#8216;Jump if Not Equal&#8217;. This means the execution will jump back to &#8216;increment_loop&#8217; if R0 does not contain the value 10. There are many other jump commands:</p>
+
+<ul>
+<li>jmp - JuMP - A direct jump without looking at the system flags</li>
+<li>je - Jump if Equal</li>
+<li>jne - Jump if Not Equal</li>
+<li>jl - Jump if Less</li>
+<li>jle - Jump if Less or Equal</li>
+<li>jg - Jump if Greater</li>
+<li>jge - Jump if Greater or Equal</li>
+</ul>
+
+<p>Another kind of branch is a function call. A function call allows us to jump to a specific section of code that will return us to where we left off when the fuction call is completed.</p>
+
+<pre><code>    mov R0, 14                  ; Set R0 to 14
+    mov R1, 23                  ; Set R1 to 23
+    call add_and_subtract_one   ; Call the function
+    cmp R0, 5
+    je test_function_sucess     ; If R0 == 5 then jump, if not then continue to next line
+
+...
+
+add_and_subtract_one:           ; Function to add R1 to R0 and then subtract 1
+    add R0, R1
+    sub R0, 1
+    ret
+</code></pre>
+
+<h2 id="thestack">The Stack</h2>
+
+<p>The stack is an area of memory used for storing temporary information. A stack is a last in, first out (LIFO) data structure. The <strong>push</strong> operation adds to the top of the list and the <strong>pop</strong> operation removes an item from the top of the list. If you were to push the numbers 5, 7, and 15 onto the stack, you would pop them out as 15 first, then 7, and lastly 5. In assembly, you can push registers onto the stack and pop them out later - this ability is useful when you want to save the value of a register while utilizing that register for another purpose.</p>
+
+<pre><code>mov R0, 25              ; Store the value 25 in R0
+push R0                 ; Push the value in R0 to the stack
+mov R0, 12              ; Store the value 12 in R0
+pop R0                  ; Pop the first value in the stack to R0. In this case R0 is set to 25 again.
+</code></pre>
+
+<p>There is no requirement to push and pop to/from the same register. For instance, both of these segments have the same result:</p>
+
+<pre><code>mov R1, R0              ; Copy the value in R0 to R1
+
+push R0                 ; Push the value in R0 to the stack
+pop R1                  ; Pop the first value in the stack to R1
+</code></pre>
+
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/IanSeyler">IanSeyler</a></p>
