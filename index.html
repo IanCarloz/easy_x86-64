@@ -21,6 +21,10 @@
         <ul>
           <li><a href="#introduction">Introduction</a></li>
           <li><a href="#registers">Registers</a></li>
+          <li><a href="#basicoperations">Basic Operations</a></li>
+          <li><a href="#branching">Branching</a></li>
+          <li><a href="#accessingmemory">Accessing Memory</a></li>
+          <li><a href="#thestack">The Stack</a></li>
         </ul>
       </header>
       <section>
@@ -46,9 +50,9 @@
 
 <h2 id="registers">Registers</h2>
 
-<p>Registers are probably the most complicated part of the x86&#8211;64 architecture and the complications that arise from them are mainly due to the carry-over from the legacy 32-bit and 16-bit x86 architectures. x86&#8211;64 has 16 64-bit general purpose registers named R0 - R15. These registers can be broken down into separate parts by bit size and can also be referenced by their legacy x86 names. More information on register names and breakdowns can be found <a href="http://www.sandpile.org/x86/gpr.htm">here</a>.</p>
+<p>Registers are probably the most complicated part of the x86&#8211;64 architecture and the complications that arise from them are mainly due to the carry-over from the legacy 32-bit and 16-bit x86 architectures. x86&#8211;64 has 16 64-bit general purpose registers named <strong>R0</strong> - <strong>R15</strong>. These registers can be broken down into separate parts by bit size and can also be referenced by their legacy x86 names. More information on register names and breakdowns can be found <a href="http://www.sandpile.org/x86/gpr.htm">here</a>.</p>
 
-<p>For instance, R0 is a 64-bit register (also known as a quad word). If you only want to use 32 bits, then that section can be referenced by R0D (a double word), 16 bits by R0W (a word), or 8 bits by R0B (a byte).</p>
+<p>For instance, <strong>R0</strong> is a 64-bit register (also known as a quad word). If you only want to use 32 bits, then that section can be referenced by <strong>R0D</strong> (a double word), 16 bits by <strong>R0W</strong> (a word), or 8 bits by <strong>R0B</strong> (a byte).</p>
 
 <p>These D, W, and B refereces are examples of carry-over from the <a href="http://en.wikipedia.org/wiki/Computer_word">16-bit word</a> days:</p>
 
@@ -115,11 +119,13 @@ div R3                  ; Divide R2:R0 by R3. In this case R2 will be set to 0, 
 
 <p>Registers R2:R0 must hold the dividend, while any other register can hold the divisor. After the <strong>div</strong> opcode executes, the quotient is stored in R0 and the remainder in R2.</p>
 
-<h2 id="comparisonsandbranching">Comparisons and Branching</h2>
+<h2 id="branching">Branching</h2>
+
+<p>Branching allows us to redirect the program flow based on certain conditions. These conditions can be checked using comparisons.</p>
 
 <p>Comparisons allow us to compare the content of two registers and the system flags will be set depending on the result of the comparison. We can then change the code execution based on these system flags.</p>
 
-<p>Branching allows us to redirect the program flow based on certain conditions. Let&#8217;s try something like a simple C &#8216;for&#8217; loop.</p>
+<p>Let&#8217;s try something like a simple C &#8216;for&#8217; loop.</p>
 
 <pre><code>    mov R0, 0           ; Set R0 to 0
 increment_loop:
@@ -155,6 +161,10 @@ add_and_subtract_one:           ; Function to add R1 to R0 and then subtract 1
     sub R0, 1
     ret
 </code></pre>
+
+<h2 id="accessingmemory">Accessing Memory</h2>
+
+<p>TBD</p>
 
 <h2 id="thestack">The Stack</h2>
 
