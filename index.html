@@ -25,6 +25,7 @@
           <li><a href="#branching">Branching</a></li>
           <li><a href="#accessingmemory">Accessing Memory</a></li>
           <li><a href="#thestack">The Stack</a></li>
+          <li><a href="#furtherreading">Further Reading</a></li>
         </ul>
       </header>
       <section>
@@ -38,8 +39,6 @@
 <p>Assembly language is the lowest level of abstraction in computers – the point at which the code is still readable. Assembly language translates directly to the bytes that are executed by your computer’s processor.</p>
 
 <p>Learning assembly is a useful exercise and will give you a deeper understanding of what takes place &#8216;under the hood&#8217;. While the vast majority of programming is done via high-level languages such as C, C++, Java, etc., it is sometimes advantageous to write partial segments of code in assembly if execution speed is a high priority. For instance, code segments with heavy math calcualtions for 3D games or scientific processes stand to benefit signifcantly from the speedup that can be achieved with assembly.</p>
-
-<p>Shameless plug: My personal interest in assembly can be seen in <a href="http://www.returninfinity.com/baremetal.html">BareMetal OS</a>, which was written entirely in assembly.</p>
 
 <p>In this document we will be using &#8216;Intel&#8217; <a href="http://en.wikipedia.org/wiki/X86_assembly_language#Syntax">syntax</a> instead of &#8216;AT&amp;T&#8217;. Therefore, opcodes that use multiple arguments work in the following form:</p>
 
@@ -74,27 +73,27 @@ mov R3, 18446744073709551615    ; Store the largest possible 64-bit number in R3
 
 <h3 id="additionandsubtraction">Addition and Subtraction</h3>
 
-<p>We can add specific registers together:</p>
+<p>We can <strong>add</strong> specific registers together:</p>
 
 <pre><code>mov R0, 11              ; Store the value 11 in R0
 mov R1, 500             ; Store the value 500 in R1
 add R0, R1              ; Add the value in R1 to R0
 </code></pre>
 
-<p>We can also add a value to a register:</p>
+<p>We can also <strong>add</strong> a value to a register:</p>
 
 <pre><code>mov R0, 25              ; Store the value 25 in R0
 add R0, 12              ; Add 12 to R0; R0 now contains 37
 </code></pre>
 
-<p>We can subtract the value of one register from another:</p>
+<p>We can <strong>sub</strong>tract the value of one register from another:</p>
 
 <pre><code>mov R15, 1337           ; Store the value 1337 in R15
 mov R12, 55             ; Store the value 55 in R12
 sub R15, R12            ; Subtract the value in R12 from R15
 </code></pre>
 
-<p>We can also subtract a value from a register:</p>
+<p>We can also <strong>sub</strong>tract a value from a register:</p>
 
 <pre><code>mov R1, 123             ; Store the value 123 in R0
 sub R1, 24              ; Subtract 24 from R1; R1 now contains 99
@@ -102,14 +101,14 @@ sub R1, 24              ; Subtract 24 from R1; R1 now contains 99
 
 <h3 id="multiplicationanddivision">Multiplication and Division</h3>
 
-<p>These operations are more complicated and highlight the unique purposes of some registers.</p>
+<p>In this section we will be using the <strong>mul</strong> and <strong>div</strong> opcodes. These operations are more complicated and highlight the unique purposes of several registers.</p>
 
 <pre><code>mov R0, 50              ; Store the value 50 in R0
 mov R1, 12              ; Store the value 12 in R1
 mul R1                  ; Multiply R0 by R1. In this case R0 will be set to 600
 </code></pre>
 
-<p>The initial number must be stored in R0. R0 can be multiplied by a value in any of the other registers. The result will be stored in R2:R0.</p>
+<p>The initial number must be stored in <strong>R0</strong>. <strong>R0</strong> can be multiplied by a value in any of the other registers. The result will be stored in <strong>R2:R0</strong>.</p>
 
 <pre><code>mov R0, 800             ; Store the value 800 in R0
 mov R2, 0               ; Clear R2 to 0
@@ -117,7 +116,7 @@ mov R3, 100             ; Store the value 100 in R3
 div R3                  ; Divide R2:R0 by R3. In this case R2 will be set to 0, and R0 will be set to 8
 </code></pre>
 
-<p>Registers R2:R0 must hold the dividend, while any other register can hold the divisor. After the <strong>div</strong> opcode executes, the quotient is stored in R0 and the remainder in R2.</p>
+<p>Registers <strong>R2:R0</strong> must hold the dividend, while any other register can hold the divisor. After the <strong>div</strong> opcode executes, the quotient is stored in <strong>R0</strong> and the remainder in <strong>R2</strong>.</p>
 
 <h2 id="branching">Branching</h2>
 
@@ -134,19 +133,19 @@ increment_loop:
     jne increment_loop  ; If they are not equal then jump to increment_loop
 </code></pre>
 
-<p>The above code will loop 10 times. <strong>jne</strong> refers to &#8216;Jump if Not Equal&#8217;. This means the execution will jump back to &#8216;increment_loop&#8217; if R0 does not contain the value 10. There are many other jump commands:</p>
+<p>The above code will loop 10 times. <strong>jne</strong> refers to &#8216;Jump if Not Equal&#8217;. This means the execution will jump back to &#8216;increment_loop&#8217; if <strong>R0</strong> does not contain the value 10. There are many other jump commands:</p>
 
 <ul>
-<li>jmp - JuMP - A direct jump without looking at the system flags</li>
-<li>je - Jump if Equal</li>
-<li>jne - Jump if Not Equal</li>
-<li>jl - Jump if Less</li>
-<li>jle - Jump if Less or Equal</li>
-<li>jg - Jump if Greater</li>
-<li>jge - Jump if Greater or Equal</li>
+<li><strong>jmp</strong> - JuMP - A direct jump without looking at the system flags</li>
+<li><strong>je</strong> - Jump if Equal</li>
+<li><strong>jne</strong> - Jump if Not Equal</li>
+<li><strong>jl</strong> - Jump if Less</li>
+<li><strong>jle</strong> - Jump if Less or Equal</li>
+<li><strong>jg</strong> - Jump if Greater</li>
+<li><strong>jge</strong> - Jump if Greater or Equal</li>
 </ul>
 
-<p>Another kind of branch is a function call. A function call allows us to jump to a specific section of code that will return us to where we left off when the fuction call is completed.</p>
+<p>Another kind of branch is a function <strong>call</strong>. A function call allows us to jump to a specific section of code that will return us to where we left off when the fuction call is completed.</p>
 
 <pre><code>    mov R0, 14                  ; Set R0 to 14
     mov R1, 23                  ; Set R1 to 23
@@ -164,7 +163,11 @@ add_and_subtract_one:           ; Function to add R1 to R0 and then subtract 1
 
 <h2 id="accessingmemory">Accessing Memory</h2>
 
-<p>TBD</p>
+<p>The registers can be used to read from and write to system memory. The <strong>mov</strong> opcode is used in a similar manner as we have seen earlier. Instead of providing a literal value we can use a memory address that is encapsulated in <strong>[</strong>square brackets<strong>]</strong>.</p>
+
+<pre><code>mov R0, [0x200000]      ; Copy a 64-bit value from memory address 0x200000 to R0
+mov [0x402000], R3      ; Copy a 64-bit value from R3 to memory address 0x402000
+</code></pre>
 
 <h2 id="thestack">The Stack</h2>
 
@@ -176,13 +179,21 @@ mov R0, 12              ; Store the value 12 in R0
 pop R0                  ; Pop the first value in the stack to R0. In this case R0 is set to 25 again.
 </code></pre>
 
-<p>There is no requirement to push and pop to/from the same register. For instance, both of these segments have the same result:</p>
+<p>There is no requirement to <strong>push</strong> and <strong>pop</strong> to/from the same register. For instance, both of these segments have the same result:</p>
 
 <pre><code>mov R1, R0              ; Copy the value in R0 to R1
 
 push R0                 ; Push the value in R0 to the stack
 pop R1                  ; Pop the first value in the stack to R1
 </code></pre>
+
+<h2 id="furtherreading">Further Reading</h2>
+
+<p>This document only srapes the surface of the opcodes and functionality that is available with the x86-64 architecture.</p>
+
+<p>Intel Software Developers Manuals can be found on their <a href="http://www.intel.com/content/www/us/en/processors/architectures-software-developer-manuals.html/">website</a>. AMD manuals can be found on their <a href="http://developer.amd.com/documentation/guides/pages/default.aspx#manuals">website</a>.</p>
+
+<p>*Shameless plug* Usage of x86-64 assembly can be seen in <a href="http://www.returninfinity.com/baremetal.html">BareMetal OS</a>, which was written by myself entirely in assembly.</p>
 
       </section>
       <footer>
