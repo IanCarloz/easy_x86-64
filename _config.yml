@@ -1,0 +1,8 @@
+title: Easy x86-64
+description: A tutorial on programming with the x86-64 in Assembly
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-cayman
+
+gems:
+  - jekyll-mentions
